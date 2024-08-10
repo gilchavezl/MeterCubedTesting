@@ -1,0 +1,1 @@
+This folder is used by the script to place intermediate files.

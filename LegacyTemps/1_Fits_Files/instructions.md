@@ -1,0 +1,1 @@
+Place FITS files from legacy system in this folder.
