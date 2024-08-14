@@ -366,6 +366,7 @@ leg_tc0013_smo = smoothdata(leg_tc0013_rmo,"movmean",20,"DataVariables","col8");
 figure(70);
 plot(leg_tc0010_smo.Timestamp, leg_tc0010_smo.col5) % Legacy TC 0010 (TC0010)
 hold on
+grid on
 plot(leg_tc0012_smo.Timestamp, leg_tc0012_smo.col7) % Legacy TC 0012 (TC0012)
 plot(leg_tc0013_smo.Timestamp, leg_tc0013_smo.col8) % Legacy TC 0013 (TC0013)
 title("Legacy Data Smooth");
@@ -600,8 +601,17 @@ tc04_diff = new_tc04_ttsec - leg_tc0010_ttsec;
 tc01_diff = new_tc01_ttsec - leg_tc0012_ttsec;
 tc02_diff = new_tc02_ttsec - leg_tc0012_ttsec;
 
+% TC0013 Bundle
+tc00_diff = new_tc00_ttsec - leg_tc0013_ttsec;
+
 % Thermistors
 therm_diff = new_thr1_ttsec - new_thr0_ttsec;
+
+% TC03 - TC04 Diff
+tc03_04_diff = abs(new_tc03_ttsec - new_tc04_ttsec);
+
+% TC01 - TC02 Diff
+tc01_02_diff = abs(new_tc01_ttsec - new_tc02_ttsec);
 
 
 
@@ -628,25 +638,108 @@ legend('TC01', 'TC02');
 figure(84);
 hold on
 grid on
+plot(tc00_diff.Time, tc00_diff.Var1)
+title("Measurement Differences for TC0013 Bundle");
+xlabel("Datetime");
+ylabel("Temperature (C)");
+legend('TC00');
+
+figure(85);
+hold on
+grid on
 plot(therm_diff.Time, therm_diff.Var1)
 title("Measurement Differences for Thermistors");
 xlabel("Datetime");
 ylabel("Temperature (C)");
 legend('Therm TIC1 - Therm TIC0');
 
+figure(86);
+hold on
+grid on
+plot(tc03_04_diff.Time, tc03_04_diff.Var1)
+plot(tc01_02_diff.Time, tc01_02_diff.Var1)
+title("Measurement Differences for TIC0 Channels");
+xlabel("Datetime");
+ylabel("Temperature (C)");
+legend('TC03-TC04', 'TC01-TC02');
+
+
 
 %%
-figure(80);
-plot(new_tc03_ttsec.Time, new_tc03_ttsec.Var1)
-hold on
+figure(90);
 plot(leg_tc0010_ttsec.Time, leg_tc0010_ttsec.Var1)
-grid on
-plot(new_tc04_ttsec.Time, new_tc04_ttsec.Var1)
-figure(81);
-plot(new_tc01_ttsec.Time, new_tc01_ttsec.Var1)
 hold on
+plot(new_tc03_ttsec.Time, new_tc03_ttsec.Var1)
+plot(new_tc04_ttsec.Time, new_tc04_ttsec.Var1)
 grid on
-plot(new_tc02_ttsec.Time, new_tc02_ttsec.Var1)
-plot(leg_tc0012_ttsec.Time, leg_tc0012_ttsec.Var1)
+title("Temperature Readings for Bundle TC0010");
+xlabel("Datetime");
+ylabel("Temperature (C)");
+legend('TC0010', 'TC03', 'TC04');
 
+figure(91);
+plot(leg_tc0012_ttsec.Time, leg_tc0012_ttsec.Var1)
+hold on
+plot(new_tc01_ttsec.Time, new_tc01_ttsec.Var1)
+plot(new_tc02_ttsec.Time, new_tc02_ttsec.Var1)
+grid on
+title("Temperature Readings for Bundle TC0012");
+xlabel("Datetime");
+ylabel("Temperature (C)");
+legend('TC0012', 'TC01', 'TC02');
+
+figure(92);
+plot(leg_tc0013_ttsec.Time, leg_tc0013_ttsec.Var1)
+hold on
+plot(new_tc00_ttsec.Time, new_tc00_ttsec.Var1)
+grid on
+title("Temperature Readings for Bundle TC0013");
+xlabel("Datetime");
+ylabel("Temperature (C)");
+legend('TC0013', 'TC00');
+
+
+%% Correlation coefficient
+% some tests to calculate correlation coefficientes and create scatter
+% plots
+
+% correlation coefficients
+disp('Correlation Coefficient for TC0012 and TC01')
+R = corrcoef(leg_tc0012_ttsec.Var1, new_tc01_ttsec.Var1);
+C = R(2,1)
+disp('Correlation Coefficient for TC0012 and TC02')
+R = corrcoef(leg_tc0012_ttsec.Var1, new_tc02_ttsec.Var1);
+C = R(2,1)
+disp('Correlation Coefficient for TC0010 and TC03')
+R = corrcoef(leg_tc0010_ttsec.Var1, new_tc03_ttsec.Var1);
+C = R(2,1)
+disp('Correlation Coefficient for TC0010 and TC04')
+R = corrcoef(leg_tc0010_ttsec.Var1, new_tc04_ttsec.Var1);
+C = R(2,1)
+disp('Correlation Coefficient for TC0013 and TC00')
+R = corrcoef(leg_tc0013_ttsec.Var1, new_tc00_ttsec.Var1);
+C = R(2,1)
+disp('Correlation Coefficient for Therm0 and TC00')
+R = corrcoef(new_thr0_ttsec.Var1, new_tc00_ttsec.Var1);
+C = R(2,1)
+
+
+%% scatter plots
+figure(100)
+sz = 10;
+scatter(leg_tc0013_ttsec.Var1, new_tc00_ttsec.Var1, sz, 'b', '*')
+grid on
+title("Scatter Plot for TC00 versus Reference Temperature TC0013 ");
+xlabel("TC0013");
+ylabel("TC00");
+% legend('TC0013', 'TC00');
+
+
+%% calculate noise using envelope
+% should probably use signals before smoothing operations
+
+
+[yupper,ylower] = envelope(new_tc00_ttsec.Var1);
+env_diff = yupper - ylower;
+noise_tc00 = mean(env_diff)
 
