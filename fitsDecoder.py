@@ -82,8 +82,9 @@ def main():
     print(folder_path)
     str_path = folder_path
     path = Path(str_path)
-    input_subfolder = "LegacyTemps\\1_Fits_Files"
-    output_subfolder = "LegacyTemps\\2_CSV_Files"
+    print(path)
+    input_subfolder = "LegacyTemps/1_Fits_Files"
+    output_subfolder = "LegacyTemps/2_CSV_Files"
     input_folder = os.path.join(path, input_subfolder)
     output_folder = os.path.join(path, output_subfolder)
     print(f'INPUT FOLDER: {input_folder}')
